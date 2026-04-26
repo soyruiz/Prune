@@ -10,6 +10,8 @@
 > Bulk-delete stored sessions from AI coding-agent CLIs — with the fzf picker
 > UX you'd actually use.
 
+![Prune demo](assets/demo.gif)
+
 `Prune` gives you one consistent way to wipe accumulated sessions across
 several agent harnesses (Pi, Goose, opencode, Forge), via an fzf picker with
 preview, plus mass-delete shortcuts.
