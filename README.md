@@ -10,6 +10,12 @@
 > Bulk-delete stored sessions from AI coding-agent CLIs — with the fzf picker
 > UX you'd actually use.
 
+[![CI](https://github.com/soyruiz/Prune/actions/workflows/ci.yml/badge.svg)](https://github.com/soyruiz/Prune/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/github/v/release/soyruiz/Prune?include_prereleases&label=version)](https://github.com/soyruiz/Prune/releases)
+[![Shells](https://img.shields.io/badge/shell-bash%204%2B%20%7C%20zsh-informational)](#requirements)
+[![Adapters](https://img.shields.io/badge/adapters-pi%20%7C%20goose%20%7C%20opencode%20%7C%20forge-success)](docs/COMPATIBILITY.md)
+
 ![Prune demo](assets/demo.gif)
 
 `Prune` gives you one consistent way to wipe accumulated sessions across

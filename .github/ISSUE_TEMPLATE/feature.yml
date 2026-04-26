@@ -1,0 +1,42 @@
+name: Feature request
+description: Suggest a new mode, flag, or behavior change.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: motivation
+    attributes:
+      label: What problem does this solve?
+      description: Describe the user need first, the proposed feature second.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: How should `prune` behave? Include the exact CLI surface (flags, modes) you'd add.
+      placeholder: |
+        Example: `prune <harness> --json` outputs the inventory as JSON instead
+        of the fzf picker, so users can pipe to `jq`.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - core (affects all adapters)
+        - one specific adapter
+        - install / uninstall
+        - docs only
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Workarounds you've tried, or other tools that solve this differently.
+    validations:
+      required: false

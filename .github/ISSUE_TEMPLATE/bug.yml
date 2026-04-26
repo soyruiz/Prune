@@ -1,0 +1,81 @@
+name: Bug report
+description: Something is broken or behaves unexpectedly.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug. The fastest way to get this
+        triaged is to fill in every box below.
+
+  - type: input
+    id: prune-version
+    attributes:
+      label: Prune version
+      description: Output of `prune --version`.
+      placeholder: prune 0.1.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: adapter
+    attributes:
+      label: Affected adapter
+      options:
+        - pi
+        - goose
+        - opencode
+        - forge
+        - core / dispatcher (not adapter-specific)
+        - install / uninstall script
+        - other
+    validations:
+      required: true
+
+  - type: input
+    id: harness-version
+    attributes:
+      label: Harness CLI version
+      description: Output of `<harness> --version` for the affected adapter (e.g., `goose --version`).
+      placeholder: goose 1.31.0
+    validations:
+      required: false
+
+  - type: input
+    id: os
+    attributes:
+      label: OS / shell
+      description: e.g. `Ubuntu 24.04 + zsh 5.9` or `macOS 14.4 arm64 + bash 5.2`.
+      placeholder: Ubuntu 24.04 + zsh 5.9
+    validations:
+      required: true
+
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of `prune doctor`
+      description: Paste the full output. Redact paths if sensitive.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Minimal steps to reproduce. Prefer `prune <harness> <mode> --dry-run` first.
+      placeholder: |
+        1. Run `prune goose --dry-run all`
+        2. ...
+        3. Expected X, got Y.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant output / error
+      description: Stdout/stderr from the failing command. No need to be exhaustive.
+      render: text
+    validations:
+      required: false
