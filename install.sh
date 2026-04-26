@@ -54,13 +54,6 @@ SRC=$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 # ---------- helpers --------------------------------------------------------
 say()  { printf '%s\n' "$*"; }
-do_or_say() {
-    if (( DRY == 1 )); then
-        printf '  [dry-run] %s\n' "$*"
-    else
-        eval "$@"
-    fi
-}
 
 # ---------- preflight: deps -----------------------------------------------
 require_cmd() {
@@ -95,7 +88,11 @@ fi
 
 # ---------- copy lib + adapters -------------------------------------------
 say "Installing Prune to $DEST"
-do_or_say "mkdir -p \"$DEST\" \"$BIN\""
+if (( DRY == 1 )); then
+    printf '  [dry-run] mkdir -p %s %s\n' "$DEST" "$BIN"
+else
+    mkdir -p "$DEST" "$BIN"
+fi
 
 # Use rsync if available for cleaner output, else tar over a pipe.
 copy_tree() {
