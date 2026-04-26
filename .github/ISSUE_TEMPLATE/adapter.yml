@@ -1,0 +1,60 @@
+name: New adapter request
+description: Request support for a new AI coding-agent CLI.
+labels: ["adapter", "enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Adapters are ~80–120 line bash files implementing a 3-function contract.
+        See [docs/ADAPTERS.md](../../docs/ADAPTERS.md) — contributions welcome!
+
+  - type: input
+    id: harness-name
+    attributes:
+      label: Harness name
+      description: The CLI's name as users invoke it.
+      placeholder: claude-code, cursor-cli, codex, ...
+    validations:
+      required: true
+
+  - type: input
+    id: repo
+    attributes:
+      label: Upstream repo / homepage
+      placeholder: https://github.com/example/example
+    validations:
+      required: true
+
+  - type: textarea
+    id: storage
+    attributes:
+      label: How does this harness store sessions?
+      description: |
+        Filesystem path? SQLite DB? Per-project or global? Roughly how do you
+        list / delete a session today (CLI subcommand, manual `rm`)?
+      placeholder: |
+        - Storage: ~/.config/foo/sessions/<id>.json
+        - List: `foo session list --json`
+        - Delete: no official CLI; manual rm
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version installed locally
+      description: For testing/ fixture generation.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Are you willing to write the adapter?
+      options:
+        - label: I can submit a PR following docs/ADAPTERS.md
+          required: false
+        - label: I can provide schema + sample data, but I'd prefer someone else implements
+          required: false
+        - label: I'm just requesting it
+          required: false
