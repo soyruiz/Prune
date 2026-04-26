@@ -120,6 +120,7 @@ issue if you see drift.
 - [AGENTS.md](AGENTS.md) — install/use reference for AI coding agents (deterministic, copy-pasteable).
 - [docs/ADAPTERS.md](docs/ADAPTERS.md) — adapter contract + how to add a new harness.
 - [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) — tested versions per harness.
+- [docs/ROADMAP.md](docs/ROADMAP.md) — prioritized improvement PRD for v0.1.x and v0.2.
 - [CHANGELOG.md](CHANGELOG.md) — release history.
 - [CONTRIBUTING.md](CONTRIBUTING.md) — how to run tests + open a PR.
 
