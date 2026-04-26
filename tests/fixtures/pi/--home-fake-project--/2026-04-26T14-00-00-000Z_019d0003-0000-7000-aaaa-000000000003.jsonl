@@ -1,0 +1,4 @@
+{"type":"session","version":3,"id":"019d0003-0000-7000-aaaa-000000000003","timestamp":"2026-04-26T14:00:00.000Z","cwd":"/home/fake/project"}
+{"type":"message","id":"m1","timestamp":"2026-04-26T14:00:01.000Z","message":{"role":"user","content":[{"type":"text","text":"tercer fixture en otro cwd"}]}}
+{"type":"message","id":"m2","timestamp":"2026-04-26T14:00:02.000Z","message":{"role":"assistant","content":[{"type":"text","text":"respuesta tres"}]}}
+{"type":"message","id":"m3","timestamp":"2026-04-26T14:00:03.000Z","message":{"role":"user","content":[{"type":"text","text":"follow up"}]}}

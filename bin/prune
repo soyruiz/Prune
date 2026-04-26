@@ -1,0 +1,177 @@
+#!/usr/bin/env bash
+# Prune — bulk-delete stored sessions from AI coding-agent CLIs.
+# https://github.com/soyruiz/Prune
+
+set -euo pipefail
+
+# ---------- locate root + load libs ----------------------------------------
+# Resolve symlinks so installs that symlink bin/prune still find lib/.
+_resolve_self() {
+    local src="${BASH_SOURCE[0]}"
+    while [[ -L "$src" ]]; do
+        local dir
+        dir=$(cd -P "$(dirname "$src")" && pwd)
+        src=$(readlink "$src")
+        [[ "$src" != /* ]] && src="$dir/$src"
+    done
+    cd -P "$(dirname "$src")" && pwd
+}
+
+PRUNE_BIN_DIR=$(_resolve_self)
+# Repo layout: bin/prune sits next to lib/ and adapters/ (or one level under
+# the install prefix). Walk up until we find lib/core.sh.
+PRUNE_ROOT="$PRUNE_BIN_DIR"
+while [[ "$PRUNE_ROOT" != "/" ]] && [[ ! -f "$PRUNE_ROOT/lib/core.sh" ]]; do
+    PRUNE_ROOT=$(dirname "$PRUNE_ROOT")
+done
+if [[ ! -f "$PRUNE_ROOT/lib/core.sh" ]]; then
+    printf 'prune: cannot find lib/core.sh from %s\n' "$PRUNE_BIN_DIR" >&2
+    exit 2
+fi
+export PRUNE_ROOT
+export PRUNE_BIN="${BASH_SOURCE[0]}"
+
+# shellcheck source=lib/version.sh
+source "$PRUNE_ROOT/lib/version.sh"
+# shellcheck source=lib/ui.sh
+source "$PRUNE_ROOT/lib/ui.sh"
+# shellcheck source=lib/core.sh
+source "$PRUNE_ROOT/lib/core.sh"
+
+# ---------- adapter discovery ----------------------------------------------
+PRUNE_ADAPTERS=()
+_load_adapter() {
+    local file="$1"
+    local name
+    name=$(basename "$file" .sh)
+    # shellcheck disable=SC1090
+    source "$file"
+    PRUNE_ADAPTERS+=("$name")
+}
+
+if [[ -d "$PRUNE_ROOT/adapters" ]]; then
+    for f in "$PRUNE_ROOT/adapters"/*.sh; do
+        [[ -e "$f" ]] || continue
+        _load_adapter "$f"
+    done
+fi
+
+# ---------- subcommands ----------------------------------------------------
+_cmd_help() {
+    cat <<EOF
+Prune ${PRUNE_VERSION} — bulk-delete stored sessions from AI coding-agent CLIs.
+
+Usage:
+  prune                        list installed harnesses + session counts
+  prune <harness>              interactive picker for one harness
+  prune <harness> all          delete EVERY session (with confirmation)
+  prune <harness> <N>{d,h,m}   delete sessions older than N days/hours/minutes
+  prune <harness> here         delete sessions opened in the current directory
+  prune <harness> ... --dry-run    list targets without deleting
+  prune doctor                 check dependencies and adapters
+  prune --version              print version
+  prune --help                 this help
+
+Adapters available in this build: ${PRUNE_ADAPTERS[*]:-(none)}
+
+Backward-compat wrappers (if installed): pi-prune, goose-prune, opencode-prune, forge-prune.
+
+Docs: https://github.com/soyruiz/Prune
+EOF
+}
+
+_cmd_summary() {
+    _ui_bold "Prune ${PRUNE_VERSION}"
+    printf '\n\n'
+    if (( ${#PRUNE_ADAPTERS[@]} == 0 )); then
+        _ui_dim "(no adapters loaded — check installation)"
+        return 0
+    fi
+    local name count
+    printf '%-12s  %-8s  %s\n' "HARNESS" "COUNT" "STATUS"
+    for name in "${PRUNE_ADAPTERS[@]}"; do
+        if command -v "$name" >/dev/null 2>&1; then
+            count=$("prune_${name}_inventory" 2>/dev/null | wc -l | tr -d ' ')
+            printf '%-12s  %-8s  ok\n' "$name" "$count"
+        else
+            printf '%-12s  %-8s  %s\n' "$name" "-" "$(_ui_dim 'CLI missing')"
+        fi
+    done
+    printf '\n%s\n' "Run: prune <harness>"
+}
+
+# Internal: called by fzf preview window.
+_cmd_preview() {
+    local name="$1" id="$2"
+    if ! declare -F "prune_${name}_preview" >/dev/null 2>&1; then
+        printf '(no preview function for %s)\n' "$name"
+        return 0
+    fi
+    "prune_${name}_preview" "$id" 2>&1 || printf '(preview failed for %s)\n' "$id"
+}
+
+# ---------- argument routing -----------------------------------------------
+main() {
+    if (( $# == 0 )); then
+        _cmd_summary
+        return 0
+    fi
+
+    case "$1" in
+        -h|--help|help)
+            _cmd_help
+            return 0
+            ;;
+        -v|--version|--ver)
+            printf 'prune %s\n' "$PRUNE_VERSION"
+            return 0
+            ;;
+        doctor)
+            _prune_doctor
+            return $?
+            ;;
+        --preview)
+            shift
+            (( $# >= 2 )) || { _ui_err "--preview requires <harness> <id>"; return 2; }
+            _cmd_preview "$1" "$2"
+            return 0
+            ;;
+        --*)
+            _ui_err "unknown flag: $1"
+            return 2
+            ;;
+    esac
+
+    local name="$1"; shift
+    local mode="" dry=0
+    # Remaining args: optional mode, optional --dry-run (any order).
+    for a in "$@"; do
+        case "$a" in
+            --dry-run) dry=1 ;;
+            -h|--help) _cmd_help; return 0 ;;
+            *) mode="$a" ;;
+        esac
+    done
+
+    # Validate the adapter exists.
+    local found=0
+    for n in "${PRUNE_ADAPTERS[@]}"; do
+        [[ "$n" == "$name" ]] && { found=1; break; }
+    done
+    if (( found == 0 )); then
+        _ui_err "unknown harness: ${name}"
+        printf 'Available adapters: %s\n' "${PRUNE_ADAPTERS[*]:-(none)}" >&2
+        return 2
+    fi
+
+    # Adapter doctor (if defined) is a soft pre-flight: warn but don't abort.
+    if declare -F "prune_${name}_doctor" >/dev/null 2>&1; then
+        if ! "prune_${name}_doctor" >/dev/null 2>&1; then
+            _ui_warn "${name} doctor reports issues — running anyway. Try: prune doctor"
+        fi
+    fi
+
+    _prune_run_mode "$name" "$mode" "$dry"
+}
+
+main "$@"

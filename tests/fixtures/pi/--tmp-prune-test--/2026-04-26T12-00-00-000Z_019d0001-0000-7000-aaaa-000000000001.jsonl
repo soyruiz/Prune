@@ -1,0 +1,3 @@
+{"type":"session","version":3,"id":"019d0001-0000-7000-aaaa-000000000001","timestamp":"2026-04-26T12:00:00.000Z","cwd":"/tmp/prune-test"}
+{"type":"message","id":"m1","timestamp":"2026-04-26T12:00:01.000Z","message":{"role":"user","content":[{"type":"text","text":"hola fixture número uno"}]}}
+{"type":"message","id":"m2","timestamp":"2026-04-26T12:00:02.000Z","message":{"role":"assistant","content":[{"type":"text","text":"hola, soy la respuesta de prueba"}]}}

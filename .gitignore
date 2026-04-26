@@ -1,0 +1,14 @@
+# Test artifacts
+tests/fixtures/**/*.db
+tests/fixtures/**/*.db-*
+tests/tmp/
+
+# OS / editor
+.DS_Store
+*.swp
+*~
+.idea/
+.vscode/
+
+# Logs
+*.log

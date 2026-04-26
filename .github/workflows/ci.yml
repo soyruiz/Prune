@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  shellcheck:
+    name: shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run shellcheck
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y shellcheck
+          shellcheck --severity=warning --shell=bash \
+            bin/prune \
+            install.sh \
+            uninstall.sh \
+            lib/*.sh \
+            adapters/*.sh \
+            tests/run.sh \
+            tests/lib/*.sh \
+            tests/test_*.sh \
+            tests/fixtures/build.sh
+
+  test:
+    name: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install runtime deps
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y fzf python3 sqlite3 gawk coreutils
+      - name: Run test suite
+        run: ./tests/run.sh

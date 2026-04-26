@@ -1,0 +1,2 @@
+{"type":"session","version":3,"id":"019d0002-0000-7000-aaaa-000000000002","timestamp":"2026-04-26T13:00:00.000Z","cwd":"/tmp/prune-test"}
+{"type":"message","id":"m1","timestamp":"2026-04-26T13:00:01.000Z","message":{"role":"user","content":[{"type":"text","text":"segundo fixture, mismo cwd"}]}}
